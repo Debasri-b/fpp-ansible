@@ -1,0 +1,16 @@
+# Deletes a rdbms or grid image from FPP. Run once per image; do not need to specify exadata hosts. 
+# Required variables: fpp_host, image_name
+ 
+- name:
+  hosts: '{{ fpp_host }}'
+  tasks:
+
+    - name: 'Assert image_name is defined'
+      assert:
+        that: image_name is defined
+        quiet: 'true'
+
+    - name: 'Delete Image'
+      include_role:
+        name: 'fpp_common'
+        tasks_from: 'image_delete.yml'

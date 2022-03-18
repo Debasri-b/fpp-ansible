@@ -1,0 +1,10 @@
+- name: 'Query Working Copy {{ wc_name }} for overall patch status'
+  become: 'true'
+  become_user: 'oracle'
+  become_method: 'sudo'
+  shell: |
+    {{ rhpctl_path }} query workingcopy -workingcopy {{ wc_name }} -details | egrep '' 
+  ignore_errors: '{{ ignore_errors_flag }}'
+  register: 'query_wc_move_status'
+- msg: '{{ query_wc_result }}' 
+  when: query_wc_move_status.stdout | regex_search("Software only: false")

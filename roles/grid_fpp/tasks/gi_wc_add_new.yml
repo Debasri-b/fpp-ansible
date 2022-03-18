@@ -1,0 +1,43 @@
+
+- name: 'When Suffix Defined for Custom Path'
+  block:
+  
+  - name: 'Check for Existing Suffix'
+    include_role:
+      name: 'target_common'
+      tasks_from: 'gihome_check_inventory'
+    vars:
+      ignore_errors_flag: 'yes'
+      gi_home_inventory: '/{{ gi_home_suffix }}"'
+  - fail:
+      msg: 'Path ending in {{ gi_home_suffix }} already exists.'
+    when: home_path_result.stdout != ""
+  
+  - set_fact:
+      oh_dirname_param: '-oh_dirname {{ gi_home_suffix }}'
+  
+  when: gi_home_suffix is defined
+
+- name: 'Find GI Groups of Current Home'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'map_groups.yml'
+  vars:
+    image_type: 'grid'
+    target_user: 'grid'
+
+- name: 'Create New GI Home'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'gihome_mcimgsetup.yml'
+
+- block:
+  - name: 'Add GI Workingcopy {{ wc_name }}'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'wc_add.yml'
+    vars:
+      target_node: '{{ ansible_host }}'
+      path: '{{ wc_path }}'
+      add_wc_param: '-softwareonly'
+  delegate_to: '{{ fpp_host }}'

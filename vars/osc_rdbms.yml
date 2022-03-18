@@ -1,0 +1,20 @@
+# GENERAL
+fpp_host: 'n3db1'
+identity_file: '/home/oracle/.ssh/idrsa.key'
+exa_host: 'ecc1n1'
+exadata_type: 'exacc'
+
+# CREATE IMAGE
+version: '19.0.0.0.0'
+version_tag: '19.13.0.0.0'
+
+# CREATE WORKING COPY
+image_name: 'DB191300'
+
+# PATCH
+source_home: 'dbhome3_191300'
+dest_home: 'dbhometst1_191300'
+db_unique_name: 'tst1911_mwf_iad'
+# patch_error_param: '-continue'
+# ignorewcpatches_param: '-ignorewcpatches'
+# forcerolling_param: '-forcerolling'

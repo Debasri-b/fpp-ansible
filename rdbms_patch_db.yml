@@ -1,0 +1,25 @@
+# Moves a database to a new home. Run for individual databases - exa_host should include only one node. 
+# Required variables: fpp_host, identity_file, exa_host, source_home, dest_home, db_unique_name
+
+- name:
+  hosts: '{{ exa_host }}'
+  tasks:
+
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: fpp_host is defined and identity_file is defined
+        quiet: 'true'
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+  
+    - name: 'RDBMS Patch'
+      include_role:
+        name: 'rdbms_fpp'
+        tasks_from: 'rdbms_patch.yml'
+

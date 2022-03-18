@@ -1,0 +1,77 @@
+
+- name: 'Assert additional patch params are expected values if defined'
+  assert:
+    that:
+      - patch_error_param is not defined or (patch_error_param == '-revert' or patch_error_param == '-continue')
+      - ignorewcpatches_param is not defined or (ignorewcpatches_param == '-ignorewcpatches' or ignorewcpatches_param == '')
+      - forcerolling_param is not defined or (forcerolling_param == '-forcerolling' or forcerolling_param == '')
+    quiet: 'true'
+
+# Run prerequistes if first run (not a revert/continue job or mid-batch)
+
+- name: 'Check if WCs are valid and run patch eval if on first run'
+  block:
+  
+  - name: 'Check if Source WC exists'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'wc_query.yml'
+    vars:
+      wc_name: '{{ source_wc }}'
+
+  - name: 'Check if Dest WC exists'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'wc_query.yml'
+    vars:
+      wc_name: '{{ dest_wc }}'
+  
+  - name: 'Patch GI Image EVAL'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'patch_grid.yml'
+    vars:
+      eval_param: '-eval'
+
+  run_once: 'true'
+  delegate_to: '{{ fpp_host }}'
+  when: patch_error_param is not defined
+
+# Run gi pre-tasks for current batch NOT REQUIRED
+
+- name: 'Run Pre-Tasks'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'gihome_patch_pretasks.yml'
+  when: patch_error_param is not defined or patch_error_param == "-continue"
+
+# Patch grid if prerequisties are met and pre-tasks were all successful
+
+- block:
+  - name: 'Patch GI Image'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'patch_grid.yml'
+     vars:
+       target_node: '{{ ansible_hostname }}'
+  run_once: 'true'
+  delegate_to: '{{ fpp_host }}'
+
+
+- name: 'Check Patching status for cluster'
+  include_role:
+    name: 'fpp_common'
+    tasks_from: 'patch_status.yml'
+    vars:
+      wc_name: '{{ dest_wc }}'
+      patch_status_current_list: 'success'
+  when: patch_result.stdout | regex_search("completed the move of Oracle Grid Infrastructure home")
+
+
+  # Run gi post-tasks for current batch NOT REQUIRED
+
+- name: 'Run Post-Tasks'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'gihome_patch_posttasks.yml'
+  when: patch_error_param is not defined

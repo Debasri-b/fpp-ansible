@@ -1,0 +1,41 @@
+# TO EDIT: paths to executables on exadata hosts
+# exadata paths
+dbaascli_path: '/bin/dbaascli'
+exa_tmp_path: '/tmp'
+gpg_path: '/bin/gpg'
+gi_zip_path: '/acfs01'
+mcimgsetup_path: '/var/opt/oracle/managed/fpp/mcimgsetupfpp'
+exacc_props_path: '/var/opt/oracle/exacc.props'
+exacs_props_path: '/opt/oracle/exacs.props'
+
+# -----------------------------------
+
+# target command defaults
+ignore_errors_flag: 'no'
+oh_dirname_param: ''
+curl_https_proxy: ''    # default behavior is no proxy
+
+# setting values for osdbagrp parsing operations
+name_dict: 
+  -a:
+    group_name: 'OSASM'
+  -d:
+    group_name: 'OSDBA'
+  -o:
+    group_name: 'OSOPER'
+  -b:
+    group_name: 'OSBACKUP'
+  -g:
+    group_name: 'OSDG'
+  -k:
+    group_name: 'OSKM'
+  -r:
+    group_name: 'OSRAC'
+
+osdbagrp_data: ''
+
+grid_options:
+  - '-a'
+  - '-d'
+  - '-o'
+

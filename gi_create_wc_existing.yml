@@ -1,0 +1,36 @@
+# Takes an existing grid home and registers it to FPP. Run for individual homes - exa_host should include only one node. 
+# Required variables: fpp_host, identity_file, exa_host, image_name, gi_home_path
+    
+- name:
+  hosts: '{{ exa_host }}'
+  tasks:
+    
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined
+          - identity_file is defined
+        quiet: 'true'
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+
+    - name: 'Assert Create WC Existing variables are defined.'
+      assert:
+        that: 
+          - image_name is defined
+          - gi_home_path is defined
+          - active_home is defined and (active_home|bool is true or active_home|bool is false)
+        quiet: 'true'
+
+    - name: 'Add GI Working Copy'
+      include_role:
+        name: 'grid_fpp'
+        tasks_from: 'gi_wc_create.yml'
+      vars:
+        existing_home: true

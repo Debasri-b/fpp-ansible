@@ -1,0 +1,56 @@
+- name: 'Assert RDBMS Create Image Variables are defined.'
+  assert: 
+    that: db_unique_name is defined and source_home is defined and dest_home is defined
+    quiet: 'true'
+
+- name: 'Assert additional patch params are expected values if defined.'
+  assert:
+    that:
+      - patch_error_param is not defined or (patch_error_param == '-revert' or patch_error_param == '-continue')
+      - ignorewcpatches_param is not defined or (ignorewcpatches_param == '-ignorewcpatches' or ignorewcpatches_param == '')
+      - forcerolling_param is not defined or (forcerolling_param == '-forcerolling' or forcerolling_param == '')
+    quiet: 'true'
+
+- name: 'Check if DB Unique Name is valid'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'db_check_unique_name.yml'
+
+- name: 'Delegating to FPP Host'
+  block:
+  
+  # Get working copy name from provided home name
+
+  - name: 'Check if source home is WC and set WC name'
+    include_tasks: 'rdbms_wc_name.yml'
+    vars:
+      db_home_name: '{{ source_home }}'
+  - set_fact:
+      source_wc: '{{ wc_name }}'
+
+  - name: 'Check if dest home is WC and set WC name'
+    include_tasks: 'rdbms_wc_name.yml'
+    vars:
+      db_home_name: '{{ dest_home }}'
+  - set_fact:
+      dest_wc: '{{ wc_name }}'
+
+  # Eval Patch Job if first run (not a revert or continue job)
+
+  - name: 'Patch Database {{ db_unique_name }} EVAL'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'patch_db.yml'
+    vars:
+      target_node: '{{ ansible_host }}'
+      eval_param: '-eval'
+    when: patch_error_param is not defined
+
+  # Patch Database if prerequisties are met
+
+  - name: 'Patch Database {{ db_unique_name }}'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'patch_db.yml'
+  
+  delegate_to: '{{ fpp_host }}'

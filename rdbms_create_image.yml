@@ -1,0 +1,29 @@
+# Creates and registers a new RDBMS image. Run once per image - exa_host should include only a single host. 
+# Required variables: fpp_host, identity_file, exa_host, exadata_type, version, version_tag
+
+- name:
+  hosts: '{{ exa_host }}'
+  tasks:
+    
+    - name: 'Assert required variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined and identity_file is defined
+          - exadata_type is defined and ( exadata_type == 'exacc' or exadata_type == 'exacs')
+        quiet: 'true'
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+
+    # On Exadata host, Creates temp DB and uses new oracle home to discovers map values.
+    # On FPP host, creates map file and registers image.
+
+    - name: 'Create RDBMS Image'
+      include_role:
+        name: 'rdbms_fpp'
+        tasks_from: 'rdbms_image_create.yml'

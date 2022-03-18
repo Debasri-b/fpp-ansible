@@ -1,0 +1,16 @@
+{
+    "{{ ru_version_string[:5] }}EE": [
+        {
+            "version": "{{ version }}",
+            "ru_version": "{{ version_tag }}",
+            "aru_id": "226",
+            "image_type": "{{ image_type }}",
+            "image_name": "{{ image_name }}.zip.gpg",
+            "image": "{{ image }}",
+            "patches": "{{ patches }}", 
+            "lspatches_bugs": "{{ fpp_maps_path }}/{{ image_map_dir }}/{{ image_name }}_bugs.lst", 
+            "nonrolling_patches": "",
+            "groups": "{{ osdbagrp_groups }}" 
+        }
+    ]
+}

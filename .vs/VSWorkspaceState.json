@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\roles",
+    "\\roles\\fpp_common",
+    "\\roles\\fpp_common\\tasks",
+    "\\roles\\grid_fpp",
+    "\\roles\\rdbms_fpp\\tasks",
+    "\\roles\\target_common\\defaults",
+    "\\roles\\target_common\\files",
+    "\\roles\\target_common\\tasks",
+    "\\vars"
+  ],
+  "SelectedNode": "\\README.md",
+  "PreviewInSolutionExplorer": false
+}

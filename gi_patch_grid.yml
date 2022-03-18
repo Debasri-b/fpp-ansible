@@ -1,0 +1,62 @@
+# Moves a grid to a new home. Run for individual homes, but exa_cluster should include all nodes from the vm cluster. 
+# Required variables: fpp_host, identity_file, exa_cluster, source_wc, dest_wc, batches_list
+
+- name:
+  hosts: '{{ fpp_host }}'
+  tasks:
+    
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: 
+          - exa_cluster is defined and identity_file is defined
+        quiet: 'true'
+
+    - name: 'Assert GI Create WC Variables are defined.'
+      assert: 
+        that: source_wc is defined and dest_wc is defined and batches_list is defined
+        quiet: 'true'
+    
+    - name: 'Query {{ dest_wc }} for any Current Batches'
+      include_role:
+        name: 'fpp_common'
+        tasks_from: 'wc_query.yml'
+      vars:
+        wc_name: '{{ dest_wc }}'
+
+- name:
+  hosts: '{{ exa_cluster }}'
+  tasks:
+    #whole block to be commented
+    - block:
+      - set_fact:
+          first_batch: '{{ batches_list | regex_findall("\b(.+?).,") | first }}'
+        run_once: 'true'
+      - debug:
+          msg: "{{ first_batch }},{{ batches_list }},{{ ansible_host }},{{ ansible_hostname }}"
+      - name: End the play for hosts not in the first batch
+        meta: end_host
+        when: ansible_host != first_batch
+      when: hostvars[fpp_host]["curr_batch"] is not defined
+    #whole block to be commented
+    - block:
+      - name: End the play for hosts not in the current batch
+        meta: end_host
+        when: >-
+          ansible_host not in hostvars[fpp_host]["curr_batch"]
+          and inventory_hostname not in hostvars[fpp_host]["curr_batch"]
+      when: hostvars[fpp_host]["curr_batch"] is defined
+
+
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+    
+    - name: 'GI Patch'
+      include_role:
+        name: 'grid_fpp'
+        tasks_from: 'gi_patch.yml'

@@ -1,0 +1,18 @@
+# Deletes a database home from the vm cluster and from FPP. Run once per cluster - exa_group should include one node per cluster. 
+# Required variables: fpp_host, identity_file, exa_group, exadata_type, db_home_name   
+
+- name:
+  hosts: '{{ exa_group }}'
+  tasks:
+
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined and identity_file is defined
+          - exadata_type is defined and ( exadata_type == 'exacc' or exadata_type == 'exacs')
+    
+    - name: 'Delete RDBMS Working Copy'
+      include_role:
+        name: 'rdbms_fpp'
+        tasks_from: 'rdbms_wc_delete'
+      

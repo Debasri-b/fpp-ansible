@@ -1,0 +1,34 @@
+# Creates and adds a new GI working copy. Run once per vm cluster - exa_group should include one node per cluster. 
+# Required variables: fpp_host, identity_file, exa_group, container_url, image_name
+
+- name:
+  hosts: '{{ exa_group }}'
+  tasks:
+    
+    - name: 'Assert required variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined and identity_file is defined
+          - container_url is defined
+        quiet: ' true'
+      run_once: 'true'
+
+    - name: 'Assert GI Create WC Variables are defined.'
+      assert:
+        that: 
+          - image_name is defined
+        quiet: ' true'
+      run_once: 'true'
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+
+    - name: 'Add GI Working Copy'
+      include_role:
+        name: 'grid_fpp'
+        tasks_from: 'gi_wc_create.yml'

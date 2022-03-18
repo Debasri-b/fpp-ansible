@@ -1,0 +1,20 @@
+# GENERAL
+fpp_host: 'n3db1'
+identity_file: '/home/oracle/.ssh/idrsa.key'
+exa_host: 'ecc1n1'
+container_url: ''
+curl_https_proxy: ''
+
+# CREATE IMAGE
+version: '19.0.0.0.0'
+version_tag: '19.13.0.0.0'
+
+# CREATE WORKING COPY
+image_name: 'GI191300'
+gi_home_suffix: 'grid191300_1'
+
+# PATCH
+batches_list: '(ecc1n1),(ecc1n3, ecc1n5),(ecc1n2, ecc1n4, ecc1n6)'
+source_wc: 'wc_GI1911300_ecc9c3'
+dest_wc: 'wc_GI191300_ecc9c3'
+# patch_error_param: '-continue'

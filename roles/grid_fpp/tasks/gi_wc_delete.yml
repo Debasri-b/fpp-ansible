@@ -1,0 +1,24 @@
+
+- name: 'Assert GI Delete WC Variable is defined'
+  assert:
+    that: wc_name is defined
+    quiet: 'true'
+
+- block:
+  - name: 'Check if WC Exists and if Software only'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'wc_query.yml'
+  - assert:
+      that: query_wc_result.stdout | regex_search("Software only. true")
+      quiet: 'true'
+  delegate_to: '{{ fpp_host }}'
+
+- block:
+  - name: 'Delete Working Copy'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'wc_delete.yml'
+    vars:
+      target_node: '{{ ansible_host }}'
+  delegate_to: '{{ fpp_host }}'

@@ -1,0 +1,26 @@
+# Creates and registers a new GI image. Run once per image - exa_host should include only a single host. 
+# Required variables: fpp_host, identity_file, exa_host, container_url, version, version_tag
+
+- name:
+  hosts: '{{ exa_host }}'
+  tasks:
+    
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined and identity_file is defined
+          - container_url is defined
+        quiet: 'true'
+
+    - name: 'Check Client Prerequistes'
+      import_role:
+        name: 'fpp_common'
+        tasks_from: 'check_client_prereq.yml'
+      vars:
+        target_node: '{{ ansible_host }}'
+      delegate_to: '{{ fpp_host }}'
+
+    - name: 'Create Grid Image'
+      include_role:
+        name: 'grid_fpp'
+        tasks_from: 'gi_image_create.yml'

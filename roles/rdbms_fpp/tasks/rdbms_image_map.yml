@@ -1,0 +1,27 @@
+
+- name: 'Find Patch and Bug Data'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'map_data.yml'
+  vars:
+    target_user: 'oracle'
+
+- name: 'Find DB Groups'
+  include_role:
+    name: 'target_common'
+    tasks_from: 'map_groups.yml'
+  vars:
+    image_type: 'db'
+    target_user: 'oracle'
+
+- block:
+  - name: 'Add Map File'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'map_file_create.yml'
+    vars:
+      target_node: '{{ ansible_host }}'
+      image_type: 'db'
+      image_map_dir: 'db'
+      image: '{{ image_name }}.zip.gpg'
+  delegate_to: '{{ fpp_host }}'

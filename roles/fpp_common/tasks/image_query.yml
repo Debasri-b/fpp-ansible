@@ -1,0 +1,10 @@
+
+- name: 'Query Image {{ image_name }}'
+  become: 'true'
+  become_user: 'oracle'
+  become_method: 'sudo'
+  shell: |
+    {{ rhpctl_path }} query image -image {{ image_name }}
+  register: 'query_image_result'
+  ignore_errors: '{{ ignore_errors_flag }}'
+- debug: { msg: '{{ query_image_result }}' }

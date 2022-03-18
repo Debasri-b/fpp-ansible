@@ -1,0 +1,17 @@
+# Deletes a grid home from the vm cluster and from FPP. Run for individual homes - exa_host should include only one node. 
+# Required variables: fpp_host, identity_file, exa_host, wc_name  
+   
+- name:
+  hosts: '{{ exa_host }}'
+  tasks:
+
+    - name: 'Assert general variables are defined.'
+      assert:
+        that: 
+          - fpp_host is defined and identity_file is defined
+    
+    - name: 'Delete GI Working Copy'
+      include_role:
+        name: 'grid_fpp'
+        tasks_from: 'gi_delete_wc'
+      

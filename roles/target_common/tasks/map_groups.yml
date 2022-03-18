@@ -1,0 +1,48 @@
+
+- name: 'Group Name Options'
+  become: 'true'
+  become_user: '{{ target_user }}'
+  become_method: 'sudo'
+  ignore_errors: 'yes'
+  shell:  |
+    $ORACLE_HOME/bin/osdbagrp h
+  environment:
+    ORACLE_HOME: '{{ oracle_home }}'
+  register: 'osdbagrp_flags'
+- name: 'Set osdbagrp flags to check'
+  set_fact:
+    osdbagrp_flags_list: '{{ osdbagrp_flags.stderr | regex_findall("-[a-z]") }}'
+
+- name: 'Group Name Command'
+  become: 'true'
+  become_user: '{{ target_user }}'
+  become_method: 'sudo'
+  shell:  |
+    $ORACLE_HOME/bin/osdbagrp {{ item }}
+  environment:
+    ORACLE_HOME: '{{ oracle_home }}'
+  loop: '{{ osdbagrp_flags_list }}'
+  register: 'osdbagrp_names_result'
+
+- name: 'For RDBMS'
+  block:
+    - name: Add to List when Defined
+      set_fact:
+        osdbagrp_data: '{{ osdbagrp_data }}{{ name_dict[item.item].group_name }}={{ item.stdout }},'
+      when: item.stdout != ''
+      loop: '{{ osdbagrp_names_result.results }}'
+  when: image_type == 'db'
+
+- name: 'For Grid'
+  block:
+    - name: Add to List when Defined
+      set_fact:
+        osdbagrp_data: '{{ osdbagrp_data }}{{ name_dict[item.item].group_name }}={{ item.stdout }},'
+      when: item.stdout != '' and item.item in grid_options
+      loop: '{{ osdbagrp_names_result.results }}'
+  when: image_type == 'grid'
+
+- set_fact:
+    osdbagrp_groups: '{{ osdbagrp_data[:-1] }}'
+- debug:
+    var: 'osdbagrp_groups'

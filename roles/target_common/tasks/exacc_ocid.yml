@@ -1,0 +1,11 @@
+
+- name: 'ExaCC VM Cluster OCID'
+  become: 'true'
+  become_user: 'root'
+  become_method: 'sudo'
+  shell: |
+    grep vmcluster_ocid= {{ exacc_props_path }}
+  register: 'exacc_vm_cluster_ocid'
+- debug: { msg: '{{ exacc_vm_cluster_ocid }}' }
+- set_fact:
+    vm_cluster_id: '{{ exacc_vm_cluster_ocid.stdout | regex_findall("vmcluster_ocid=(.+)") | first }}'
