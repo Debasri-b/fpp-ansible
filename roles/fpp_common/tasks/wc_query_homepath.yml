@@ -1,3 +1,4 @@
+# query working copy name from db home path
 - name: 'Query Working Copy For {{ oracle_home }}'
   become: 'true'
   become_user: 'oracle'
