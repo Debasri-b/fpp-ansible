@@ -2,7 +2,7 @@
 - name: 'Assert additional patch params are expected values if defined'
   assert:
     that:
-      - patch_error_param is not defined or (patch_error_param == '-revert' or patch_error_param == '-continue')
+      - patch_error_param is not defined or (patch_error_param == '-revert' or patch_error_param == '-continue' or patch_error_param == '-eval')
       - ignorewcpatches_param is not defined or (ignorewcpatches_param == '-ignorewcpatches' or ignorewcpatches_param == '')
       - forcerolling_param is not defined or (forcerolling_param == '-forcerolling' or forcerolling_param == '')
     quiet: 'true'
@@ -35,15 +35,8 @@
 
   run_once: 'true'
   delegate_to: '{{ fpp_host }}'
-  when: patch_error_param is not defined
+  when: patch_error_param is not defined or patch_error_param == "-eval"
 
-# Run gi pre-tasks for current batch NOT REQUIRED
-
-- name: 'Run Pre-Tasks'
-  include_role:
-    name: 'target_common'
-    tasks_from: 'gihome_patch_pretasks.yml'
-  when: patch_error_param is not defined or patch_error_param == "-continue"
 
 # Patch grid if prerequisties are met and pre-tasks were all successful
 
@@ -52,26 +45,36 @@
     include_role:
       name: 'fpp_common'
       tasks_from: 'patch_grid.yml'
-     vars:
-       target_node: '{{ ansible_hostname }}'
+    vars:
+      target_node: '{{ ansible_hostname }}'
+  - set_fact:
+      patch_list_status: 'Failed to execute move gihome FPP command'
+  - set_fact:
+      patch_list_status: 'Successfully executed move gihome FPP command'
+    when: patch_exit_code == '0'
+  - debug:
+      msg: '{{ patch_list_status }}'
+  when: patch_error_param != "-eval"
   run_once: 'true'
   delegate_to: '{{ fpp_host }}'
 
-
-- name: 'Check Patching status for cluster'
-  include_role:
-    name: 'fpp_common'
-    tasks_from: 'patch_status.yml'
+- block:
+  - name: 'Query Patch status for cluster'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'patch_status.yml'
     vars:
       wc_name: '{{ dest_wc }}'
-      patch_status_current_list: 'success'
-  when: patch_result.stdout | regex_search("completed the move of Oracle Grid Infrastructure home")
+  - set_fact:
+      cluster_patch_status: 'All nodes in the cluster has been patched'
+    when: completion_status != ""
+  - set_fact:
+      cluster_patch_status: 'There are nodes still left to be patched in the cluster'
+    when: completion_status == ""
+  - debug:
+      msg: '{{ cluster_patch_status }}'
+  delegate_to: '{{ fpp_host }}'
+  when: patch_exit_code == '0' and patch_error_param != "-eval" 
 
 
-  # Run gi post-tasks for current batch NOT REQUIRED
 
-- name: 'Run Post-Tasks'
-  include_role:
-    name: 'target_common'
-    tasks_from: 'gihome_patch_posttasks.yml'
-  when: patch_error_param is not defined

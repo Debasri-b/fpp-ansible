@@ -1,0 +1,8 @@
+- name: 'Query Working Copy For {{ oracle_home }}'
+  become: 'true'
+  become_user: 'oracle'
+  become_method: 'sudo'
+  shell: |
+    {{ rhpctl_path }} query workingcopy -client {{ client }} -path {{ path }}
+  register: 'query_wc_name_from_path'
+- debug: { msg: '{{ query_wc_name_from_path }}' }

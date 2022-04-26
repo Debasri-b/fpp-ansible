@@ -9,9 +9,10 @@
       assert:
         that: 
           - fpp_host is defined and identity_file is defined
-    
+
+      
     - name: 'Delete GI Working Copy'
       include_role:
         name: 'grid_fpp'
-        tasks_from: 'gi_delete_wc'
+        tasks_from: 'gi_wc_delete'
       

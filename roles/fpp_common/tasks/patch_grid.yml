@@ -10,7 +10,17 @@
     async: 3600
     poll: 60
   - debug: { msg: '{{ patch_result }}' }
-  when: patch_error_param is not defined or patch_error_param == "-continue"
+  - name: 'Check fpp command execution status'
+    become: 'true'
+    become_user: 'oracle'
+    become_method: 'sudo'
+    shell: |
+      echo $?
+    register: 'command_status'
+  - debug: { msg: '{{ command_status.stdout | int }}' }
+  - set_fact:
+      patch_exit_code: '{{ command_status.stdout | int % 2 }}'
+  when: patch_error_param is not defined or patch_error_param == "-continue" or patch_error_param == "-eval"
 
   
 - block:

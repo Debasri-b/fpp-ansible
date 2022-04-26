@@ -136,9 +136,9 @@ General Variables - should always be included in a playbook run
 - Runtime Variables
     - exa_cluster `exadata1n1,exadata1n2,exadata1n3,exadata1n4`
     - source_wc `GI191300_exadata1`
-    - dest_wc `GI191300_exadata1`
-    - batches_list `(exadata1n1.oracle.com),(exadata1n2.oracle.com,exadata1n4.oracle.com),(exadata1n3)` - comma separated list of FQDN hosts to indicate batches for patching. First batch should always be only one node. 
-    - OPTIONAL: patch_error_param `-revert`,`-continue`
+    - dest_wc `GI191400_exadata1`
+    - batches_list `(exadata1n1.oracle.com,exadata1n2.oracle.com)` - user provides the list of nodes to be patched during a particular run of the playbook
+    - OPTIONAL: patch_error_param `-revert`,`-continue` , '-eval'
     - OPTIONAL: ignorewcpatches_param `-ignorewcpatches`
     - OPTIONAL: forcerolling_param `-forcerolling`
 

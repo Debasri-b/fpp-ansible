@@ -1,0 +1,13 @@
+# used for gi wc create
+- name: 'Get Client Name'
+  become: 'true'
+  become_user: 'root'
+  become_method: 'sudo'
+  shell:  |
+    {{ oracle_home }}/bin/olsnodes -c
+  register: 'client_name_result'
+- debug:
+    msg: '{{ client_name_result }}'
+- set_fact:
+    client_name: '{{ client_name_result.stdout }}'
+- debug: { var: 'client_name' }
