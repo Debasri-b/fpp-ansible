@@ -54,7 +54,7 @@
     when: patch_exit_code == '0'
   - debug:
       msg: '{{ patch_list_status }}'
-  when: patch_error_param != "-eval"
+  when: patch_error_param is not defined or patch_error_param == "-continue" or patch_error_param == "-revert"
   run_once: 'true'
   delegate_to: '{{ fpp_host }}'
 
@@ -74,7 +74,7 @@
   - debug:
       msg: '{{ cluster_patch_status }}'
   delegate_to: '{{ fpp_host }}'
-  when: patch_exit_code == '0' and patch_error_param != "-eval" 
+  when: patch_exit_code == '0' and (patch_error_param is not defined or patch_error_param == "-continue" or patch_error_param == "-revert") 
 
 
 

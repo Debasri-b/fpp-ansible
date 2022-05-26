@@ -34,4 +34,4 @@
     async: 3600
     poll: 60
   - debug: { msg: '{{ patch_result }}' }
-  when: patch_error_param == "-revert"
+  when: patch_error_param is defined and patch_error_param == "-revert"
