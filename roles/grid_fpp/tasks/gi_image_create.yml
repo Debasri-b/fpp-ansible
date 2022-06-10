@@ -25,12 +25,20 @@
     when: not query_image_result.stdout | regex_search("does not exist")
   delegate_to: '{{ fpp_host }}'
 
-# Sets current active home as oracle home to query for image information
+# If GI Home is provided validate and set to oracle home otherwise set current active home as oracle home to query for image information
+- block:
+  - name: 'Validate GI home path'
+    include_role:
+      name: 'target_common'
+      tasks_from: 'gihome_path_check.yml'
+  when: gi_home_path is defined
 
-- name: 'Set Current GI Home'
-  include_role:
-    name: 'target_common'
-    tasks_from: 'gihome_info.yml'
+- block:
+  - name: 'Set Current GI Home'
+    include_role:
+      name: 'target_common'
+      tasks_from: 'gihome_info.yml'
+  when: gi_home_path is not defined
 
 - name: 'Assert that oracle_home is defined'
   assert:

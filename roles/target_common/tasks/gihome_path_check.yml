@@ -1,0 +1,12 @@
+
+- name: 'Check for {{ gi_home_path }} '
+  become: 'true'
+  become_user: 'root'
+  become_method: 'sudo'
+  shell:  |
+    ll {{ gi_home_path }}/bin/ocssd.bin
+  register: 'home_path_result'
+- debug: { msg: '{{ home_path_result }}' }
+- set_fact:
+    oracle_home: '{{ gi_home_path }}'
+- debug: { var: 'oracle_home' }
