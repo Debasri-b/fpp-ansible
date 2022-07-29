@@ -25,11 +25,23 @@
   vars:
     image_type: 'grid'
     target_user: 'grid'
+    
+- block:    
+  - name: 'Get mcimgsetup path'
+    include_role:
+      name: 'fpp_common'
+      tasks_from: 'mcimgsetup_path.yml'
+    vars:
+      target_node: '{{ ansible_host }}'
+  debug: { msg: '{{ mcimgsetup_dir_path }}' }
+  delegate_to: '{{ fpp_host }}'
 
 - name: 'Create New GI Home'
   include_role:
     name: 'target_common'
     tasks_from: 'gihome_mcimgsetup.yml'
+  vars:
+    mcimgsetup_cust_path: '{{ mcimgsetup_dir_path }}'
 
 - block:
   - name: 'Add GI Workingcopy {{ wc_name }}'

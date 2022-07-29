@@ -1,0 +1,11 @@
+- name: 'Get mcimgsetup path - FPP host'
+  become: 'true'
+  become_user: 'oracle'
+  become_method: 'sudo'
+  shell: |
+    {{ fpptool_path }}fpptool_deploy.sh targetnode={{ target_node }} sudouser=opc identityfile={{ identity_file }} sudoloc=/bin/sudo | grep -oP '(?<=<fpptoolloc>).*(?=</fpptoolloc)' 
+  register: 'mcimgsetup_path'
+- debug: { msg: '{{ mcimgsetup_path }}' }
+- set_fact:
+    mcimgsetup_dir_path: '{{ mcimgsetup_path.stdout }}'
+  

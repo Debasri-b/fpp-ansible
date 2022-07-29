@@ -3,16 +3,19 @@
   become_user: 'root'
   become_method: 'sudo'
   shell:  |
-    {{ dbaascli_path }} dbhome info --hname {{ db_home_name }} --noprompt YES
+    {{ dbaascli_path }} dbhome getDetails --oracleHomeName {{ db_home_name }} --noprompt YES
+    
   register: 'dbhome_info_result'
 - debug: { msg: '{{ dbhome_info_result }}' }
 
 - name: 'Set oracle_home if {{ db_home_name }} exists'
   block:
   - set_fact:
-      oracle_home: '{{ dbhome_info_result.stdout | regex_findall("HOME_LOC=(.+?)\n") | first }}'
+      oracle_home_t: '{{ dbhome_info_result.stdout | regex_findall(".*homePath.+?(\/.+).") | first }}'
+  - set_fact:
+         oracle_home: '{{ oracle_home_t[:-1] }}'
   - debug: { var: 'oracle_home' }
-  when: dbhome_info_result.stdout | regex_search("HOME_NAME")
+  when: dbhome_info_result.stdout | regex_search("homeName")
 
 - block:
   - name: 'Find Oracle Base'
